@@ -32,54 +32,58 @@
 *  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
 *  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
 *  POSSIBILITY OF SUCH DAMAGE.
+*
+* Contributors:
+* Bosch Software Innovations GmbH
 */
 /*----------------------------------------------------------------------------*/
 /**
-* @file
-* @brief  This Module is Configuration header for XDK Application Template configurations
-*
-**/
-
+ * @file
+ */
 /* header definition ******************************************************** */
-#ifndef XDK110_XDKAPPLICATIONTEMPLATE_H_
-#define XDK110_XDKAPPLICATIONTEMPLATE_H_
+#ifndef SNTPTIME_H_
+#define SNTPTIME_H_
 
+/* system header files */
 #include "BCDS_Basics.h"
 
-/* local interface declaration ********************************************** */
- /* Priorities */
+/**
+ * @brief Definition of the used SNTP Server and Client port.
+ */
+#define SNTP_DEFAULT_PORT				UINT16_C(123)
 
-#define TASK_PRIO_MAIN_CMD_PROCESSOR                (UINT32_C(1))
-#define TASK_STACK_SIZE_MAIN_CMD_PROCESSOR          (UINT16_C(700))
-#define TASK_Q_LEN_MAIN_CMD_PROCESSOR                (UINT32_C(10))
+/**
+ * @brief Definition of the default SNTP Server host.
+ */
+#define SNTP_DEFAULT_ADDR				"0.de.pool.ntp.org"
 
-/* local type and macro definitions */
+/**
+ * @brief initialize UTC time by an request to a SNTP server.
+ *
+ * If the configured SNTP server host could not be resolved,
+ * a fixed SNTP server IP address (176.9.104.147) is put in place.
+ * On a valid response the local UTC time will than be the system-up time.
+ */
+extern void InitSntpTime(void);
 
-#define TIMER_AUTORELOAD_ON                         (UINT32_C(1))
-#define TIMER_AUTORELOAD_OFF                        (UINT32_C(0))
-#define BMA280_READ_FREQ_MS                         (UINT32_C(2000))
+/**
+ * @brief Set UTC time
+ *
+ * Sets the current UTC time to calculate the offtset to the system-up-time.
+ *
+ * @param UTC time in seconds since 1970
+ */
+extern void SetUtcTime(uint32_t utcTime);
 
+/**
+ * @brief return the UTC time in seconds since 1970.
+ *
+ * This method calculates the UTC time on system clock base.
+ * If the setUtcTime() method is not called before, this method
+ * will return the system-up-time in seconds.
+ *
+ * @return UTC time in secons since 1970
+ */
+extern uint32_t GetUtcTime(void);
 
-#define TASK_PRIORITY_SERVALPAL_CMD_PROC            UINT32_C(3)
-#define TASK_STACK_SIZE_SERVALPAL_CMD_PROC          UINT32_C(600)
-#define TASK_QUEUE_LEN_SERVALPAL_CMD_PROC           UINT32_C(10)
-
-#define TASK_PRIO_HTTP_REQ							(UINT32_C(2))
-#define TASK_STACK_SIZE_HTTP_REQ                    (UINT16_C(700))
-
-//#define DESTINATION_SERVER_HOST     "192.168.150.114"
-//#define DESTINATION_SERVER_PORT UINT16_C(8999)
-
-#define WIFI_SSID                "ubirch"
-#define WIFI_PASS                "H3ll0Ub1rch!"
-#define DESTINATION_SERVER_HOST  "postman-echo.com"
-#define DESTINATION_SERVER_PORT  UINT16_C(80)
-
-#define DESTINATON_POST_PATH     "/post"
-
-
-void appInitSystem(void * CmdProcessorHandle, uint32_t param2);
-
-#endif /* XDK110_XDKAPPLICATIONTEMPLATE_H_ */
-
-/** ************************************************************************* */
+#endif /* SNTPTIME_H_ */

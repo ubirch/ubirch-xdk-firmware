@@ -49,9 +49,13 @@
 
 
 /* module includes ********************************************************** */
-#include "XdkApplicationTemplate.h"
 
 #include "BMA280.h"
+#include "SntpTime.h"
+
+#include "wlan.h"
+#include "ubirch-proto.h"
+
 /* system header files */
 #include <stdio.h>
 #include <BCDS_Basics.h>
@@ -61,33 +65,79 @@
 #include "BSP_BoardType.h"
 #include "BCDS_CmdProcessor.h"
 #include "BCDS_Assert.h"
+#include "Serval_Sntp.h"
+#include <Serval_Network.h>
+#include "BCDS_ServalPal.h"
+#include "BCDS_ServalPalWiFi.h"
 #include "FreeRTOS.h"
 #include "timers.h"
+#include "XdkApplicationTemplate.h"
+#include "ubirch_protocol.h"
+
 
 /* constant definitions ***************************************************** */
 
 /* local variables ********************************************************** */
 #define SECONDS(x) ((portTickType) (x * 1000) / portTICK_RATE_MS)
 
-static CmdProcessor_T *AppCmdProcessor;
+static CmdProcessor_T CommandProcessorHandle;
 
-xTaskHandle bma280TaskHandle = NULL;
-xTimerHandle bma280AccTimerHandle = NULL;
+//xTaskHandle bma280TaskHandle = NULL;
 xTaskHandle ledTaskHandle = NULL;
+
 /* global variables ********************************************************* */
 
 /* inline functions ********************************************************* */
 
 /* local functions ********************************************************** */
+
+static Retcode_T ServalPalSetup(void)
+{
+    Retcode_T returnValue = RETCODE_OK;
+    returnValue = CmdProcessor_Initialize(&CommandProcessorHandle, "Serval PAL", TASK_PRIORITY_SERVALPAL_CMD_PROC, TASK_STACK_SIZE_SERVALPAL_CMD_PROC, TASK_QUEUE_LEN_SERVALPAL_CMD_PROC);
+    /* serval pal common init */
+    if (RETCODE_OK == returnValue)
+    {
+        returnValue = ServalPal_Initialize(&CommandProcessorHandle);
+    }
+    if (RETCODE_OK == returnValue)
+    {
+        returnValue = ServalPalWiFi_Init();
+    }
+    if (RETCODE_OK == returnValue)
+    {
+        ServalPalWiFi_StateChangeInfo_T stateChangeInfo = { SERVALPALWIFI_OPEN, INT16_C(0) };
+        returnValue = ServalPalWiFi_NotifyWiFiEvent(SERVALPALWIFI_STATE_CHANGE, &stateChangeInfo);
+    }
+    return returnValue;
+}
+
 static void read_bma280(void *pvParameters)
 {
 	BCDS_UNUSED(pvParameters);
 	while (true)
 	{
+		printf("TS:%lu: ", GetUtcTime());
 		BMA280_get_values();
-		 vTaskDelay((portTickType) 1000 / portTICK_RATE_MS);
-	}
 
+		vTaskDelay(SECONDS(2));
+	}
+}
+
+static void ledtimer(void)
+{
+	Retcode_T retVal = RETCODE_OK;
+
+	retVal = BSP_LED_Switch((uint32_t) BSP_XDK_LED_R, (uint32_t) BSP_LED_COMMAND_TOGGLE);
+	if (RETCODE_OK != retVal)
+	{
+		printf("Failed to toggle red led\r\n");
+	}
+	retVal = BSP_LED_Switch((uint32_t) BSP_XDK_LED_O, (uint32_t) BSP_LED_COMMAND_TOGGLE);
+	if (RETCODE_OK != retVal)
+	{
+		printf("Failed to toggle orange led\r\n");
+	}
 }
 
 static void toggleLED(void *pvParameters)
@@ -95,27 +145,19 @@ static void toggleLED(void *pvParameters)
 	Retcode_T retVal = RETCODE_OK;
 	BCDS_UNUSED(pvParameters);
 
+
 	for (;;)
 	{
 		retVal = BSP_LED_Switch((uint32_t) BSP_XDK_LED_Y, (uint32_t) BSP_LED_COMMAND_TOGGLE);
-		if (RETCODE_OK == retVal)
+		if (RETCODE_OK != retVal)
 		{
-			printf("Failed to toggle led\n\r");
+			printf("Failed to toggle led\r\n");
 		}
-		 vTaskDelay((portTickType) 1000 / portTICK_RATE_MS);
+		ledtimer();
+		vTaskDelay((portTickType) 1000 / portTICK_RATE_MS);
 	}
 }
 
-void enqueueked(TimerHandle_t pxTimer )
-{
-	BCDS_UNUSED(pxTimer);
-
-    Retcode_T returnValue = CmdProcessor_EnqueueFromIsr(AppCmdProcessor, toggleLED, NULL, NULL);
-    if (RETCODE_OK != returnValue)
-    {
-        printf("Enqueuing for Button 2 callback failed\n\r");
-    }
-}
 /* Routine to Initialize the LED */
 static Retcode_T LedInitialize(void)
 {
@@ -146,8 +188,6 @@ static Retcode_T LedInitialize(void)
 
 static void init (void)
 {
-	printf("Initializing xdk\r\n");
-
 	Retcode_T retVal = RETCODE_OK;
 
 	retVal = LedInitialize();
@@ -156,27 +196,44 @@ static void init (void)
 		printf("failed to init led\r\n");
 	}
 
-	retVal = BMA280_init();
+	wlan_enable();
 
-	if ((RETCODE_OK != retVal) || (NULL != bma280AccTimerHandle))
+	retVal = BMA280_init();
+	if (RETCODE_OK != retVal)
 	{
 		printf("Failed to initialize bma280AccTimerHandle\r\n");
 		assert(false);
 	}
 
-    if (xTaskCreate(read_bma280, (const char *)"READ-BMA", configMINIMAL_STACK_SIZE,
-    		NULL, 4, &bma280TaskHandle) != pdPASS)
-    {
-    	printf("failed to create task\r\n");
-    	assert(0);
-    }
+	// Get time from ntp
+	InitSntpTime();
+
     if (xTaskCreate(toggleLED, (const char *)"TOGGLE", configMINIMAL_STACK_SIZE,
         		NULL, 4, &ledTaskHandle) != pdPASS)
 	{
 		printf("failed to create task\r\n");
 		assert(0);
 	}
+
+    vTaskDelay(SECONDS(1));
+
+    http_init();
+
+//	if (xTaskCreate(httpPostTask, (const char * const)"HTTPTASK",
+//			TASK_STACK_SIZE_HTTP_REQ, NULL, TASK_PRIO_HTTP_REQ, &httpTaskHandle) != pdPASS)
+//	{
+//		printf("failed to create http task\r\n");
+//		assert(0);
+//	}
+//    if (xTaskCreate(read_bma280, (const char *)"READ-BMA", configMINIMAL_STACK_SIZE,
+//    		NULL, 4, &bma280TaskHandle) != pdPASS)
+//    {
+//    	printf("failed to create task\r\n");
+//    	assert(0);
+//    }
+
 }
+
 /* global functions ********************************************************* */
 
 /**
@@ -185,19 +242,24 @@ static void init (void)
  */
 void appInitSystem(void * CmdProcessorHandle, uint32_t param2)
 {
-	printf("Initializing xdk\r\n");
-
     if (CmdProcessorHandle == NULL)
     {
-        printf("Command processor handle is null \n\r");
+        printf("Command processor handle is null \r\n");
         assert(false);
     }
-    AppCmdProcessor = (CmdProcessor_T *) CmdProcessorHandle;
-    BCDS_UNUSED(param2);
 
-    // Appplication init function
+    BCDS_UNUSED(param2);
+    BCDS_UNUSED(CmdProcessorHandle);
+
+    Retcode_T returnValue = ServalPalSetup();
+    if (RETCODE_OK != returnValue)
+    {
+        Retcode_RaiseError(returnValue);
+        printf("ServalPal Setup failed with %d \r\n", (int) returnValue);
+        return;
+    }
+    // Enter the Appplication
     init();
 }
-
 /**@} */
 /** ************************************************************************* */

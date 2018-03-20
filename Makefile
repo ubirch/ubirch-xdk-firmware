@@ -26,6 +26,9 @@ export BCDS_XDK_APP_SOURCE_FILES = \
 	$(BCDS_APP_SOURCE_DIR)/Main.c \
 	$(BCDS_APP_SOURCE_DIR)/XdkApplicationTemplate.c \
 	$(BCDS_APP_SOURCE_DIR)/BMA280.c \
+	$(BCDS_APP_SOURCE_DIR)/wlan.c \
+	$(BCDS_APP_SOURCE_DIR)/SntpTime.c \
+	$(BCDS_APP_SOURCE_DIR)/ubirch-proto.c \
 
 .PHONY: clean	debug release flash_debug_bin flash_release_bin
 

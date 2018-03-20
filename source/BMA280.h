@@ -11,7 +11,7 @@
 #include "BCDS_Retcode.h"
 #include "BCDS_Accelerometer.h"
 
-extern Accelerometer_XyzData_T bma280;
+extern Accelerometer_XyzData_T bma280AccelData;
 
 Retcode_T BMA280_init(void);
 
