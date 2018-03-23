@@ -39,6 +39,7 @@ xSemaphoreHandle ReadSensorSemaphor = NULL; /**< Semaphore to lock/unlock the Pi
 unsigned char prevSig[64] = {0};
 unsigned char UUID[16] = { 0 };
 
+//TEST ed25519_secret_key -Replace it
 unsigned char ed25519_secret_key[crypto_sign_SECRETKEYBYTES] = {
 		0x69, 0x09, 0xcb, 0x3d, 0xff, 0x94, 0x43, 0x26, 0xed, 0x98, 0x72, 0x60,
 		0x1e, 0xb3, 0x3c, 0xb2, 0x2d, 0x9e, 0x20, 0xdb, 0xbb, 0xe8, 0x17, 0x34,
@@ -49,6 +50,7 @@ unsigned char ed25519_secret_key[crypto_sign_SECRETKEYBYTES] = {
 };
 
 static void getubirchprotocol(void * param);
+
 void http_init(void)
 {
 	retcode_t rc = HttpClient_initialize();
@@ -75,17 +77,6 @@ void http_init(void)
 		printf("failed to create http task\r\n");
 		assert(0);
 	}
-
-//	ubProtoTimerHandle = xTimerCreate((const char *)"UB-PROTO",
-//													pdMS_TO_TICKS(3),
-//													pdTRUE,
-//													NULL,
-//													getubirchprotocol);
-//
-//	if (ubProtoTimerHandle != NULL)
-//	{
-//		xTimerStart(ubProtoTimerHandle, (10/portTICK_RATE_MS));
-//	}
 }
 
 static void getubirchprotocol(void * param)

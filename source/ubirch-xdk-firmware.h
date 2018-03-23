@@ -67,14 +67,11 @@
 #define TASK_PRIO_HTTP_REQ							(UINT32_C(2))
 #define TASK_STACK_SIZE_HTTP_REQ                    (UINT16_C(700))
 
-//#define DESTINATION_SERVER_HOST     "192.168.150.114"
-//#define DESTINATION_SERVER_PORT UINT16_C(8999)
+#define WIFI_SSID                "YOUR_WIFI_SSID"
+#define WIFI_PASS                "YOUR_WIFI_PASSKEY"
 
-#define WIFI_SSID                "ubirch"
-#define WIFI_PASS                "H3ll0Ub1rch!"
-#define DESTINATION_SERVER_HOST  "postman-echo.com"
+#define DESTINATION_SERVER_HOST  "SERVER.COM"
 #define DESTINATION_SERVER_PORT  UINT16_C(80)
-
 #define DESTINATON_POST_PATH     "/post"
 
 

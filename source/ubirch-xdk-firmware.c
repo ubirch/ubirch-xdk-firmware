@@ -51,10 +51,8 @@
 /* module includes ********************************************************** */
 
 #include "ubirch-xdk-firmware.h"
-
 #include "BMA280.h"
 #include "SntpTime.h"
-
 #include "wlan.h"
 #include "ubirch-proto.h"
 
@@ -80,6 +78,7 @@
 
 /* local variables ********************************************************** */
 #define SECONDS(x) ((portTickType) (x * 1000) / portTICK_RATE_MS)
+#define MILI_SECONDS(x) ((portTickType) (x) / portTICK_RATE_MS)
 
 static CmdProcessor_T CommandProcessorHandle;
 
@@ -92,6 +91,7 @@ xTaskHandle ledTaskHandle = NULL;
 
 /* local functions ********************************************************** */
 
+// Initialize ServalPal to init TCP/IP, UDP, HTTP communication via WIFI
 static Retcode_T ServalPalSetup(void)
 {
     Retcode_T returnValue = RETCODE_OK;
@@ -113,34 +113,6 @@ static Retcode_T ServalPalSetup(void)
     return returnValue;
 }
 
-static void read_bma280(void *pvParameters)
-{
-	BCDS_UNUSED(pvParameters);
-	while (true)
-	{
-		printf("TS:%lu: ", GetUtcTime());
-		BMA280_get_values();
-
-		vTaskDelay(SECONDS(2));
-	}
-}
-
-static void ledtimer(void)
-{
-	Retcode_T retVal = RETCODE_OK;
-
-	retVal = BSP_LED_Switch((uint32_t) BSP_XDK_LED_R, (uint32_t) BSP_LED_COMMAND_TOGGLE);
-	if (RETCODE_OK != retVal)
-	{
-		printf("Failed to toggle red led\r\n");
-	}
-	retVal = BSP_LED_Switch((uint32_t) BSP_XDK_LED_O, (uint32_t) BSP_LED_COMMAND_TOGGLE);
-	if (RETCODE_OK != retVal)
-	{
-		printf("Failed to toggle orange led\r\n");
-	}
-}
-
 static void toggleLED(void *pvParameters)
 {
 	Retcode_T retVal = RETCODE_OK;
@@ -154,8 +126,21 @@ static void toggleLED(void *pvParameters)
 		{
 			printf("Failed to toggle led\r\n");
 		}
-		ledtimer();
-		vTaskDelay((portTickType) 1000 / portTICK_RATE_MS);
+		vTaskDelay(MILI_SECONDS(600));
+
+		retVal = BSP_LED_Switch((uint32_t) BSP_XDK_LED_O, (uint32_t) BSP_LED_COMMAND_TOGGLE);
+		if (RETCODE_OK != retVal)
+		{
+			printf("Failed to toggle orange led\r\n");
+		}
+		vTaskDelay(MILI_SECONDS(600));
+
+		retVal = BSP_LED_Switch((uint32_t) BSP_XDK_LED_R, (uint32_t) BSP_LED_COMMAND_TOGGLE);
+		if (RETCODE_OK != retVal)
+		{
+			printf("Failed to toggle red led\r\n");
+		}
+		vTaskDelay(MILI_SECONDS(600));
 	}
 }
 
@@ -196,6 +181,12 @@ static void init (void)
 	{
 		printf("failed to init led\r\n");
 	}
+	if (xTaskCreate(toggleLED, (const char *)"TOGGLE", configMINIMAL_STACK_SIZE,
+	        		NULL, 4, &ledTaskHandle) != pdPASS)
+	{
+		printf("failed to create task\r\n");
+		assert(0);
+	}
 
 	wlan_enable();
 
@@ -209,30 +200,9 @@ static void init (void)
 	// Get time from ntp
 	InitSntpTime();
 
-    if (xTaskCreate(toggleLED, (const char *)"TOGGLE", configMINIMAL_STACK_SIZE,
-        		NULL, 4, &ledTaskHandle) != pdPASS)
-	{
-		printf("failed to create task\r\n");
-		assert(0);
-	}
-
     vTaskDelay(SECONDS(1));
 
     http_init();
-
-//	if (xTaskCreate(httpPostTask, (const char * const)"HTTPTASK",
-//			TASK_STACK_SIZE_HTTP_REQ, NULL, TASK_PRIO_HTTP_REQ, &httpTaskHandle) != pdPASS)
-//	{
-//		printf("failed to create http task\r\n");
-//		assert(0);
-//	}
-//    if (xTaskCreate(read_bma280, (const char *)"READ-BMA", configMINIMAL_STACK_SIZE,
-//    		NULL, 4, &bma280TaskHandle) != pdPASS)
-//    {
-//    	printf("failed to create task\r\n");
-//    	assert(0);
-//    }
-
 }
 
 /* global functions ********************************************************* */
