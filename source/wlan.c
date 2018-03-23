@@ -9,13 +9,13 @@
 #include <BCDS_Basics.h>
 
 //#include "SntpTime.h"
-#include "XdkApplicationTemplate.h"
 #include "wlan.h"
 
 #include "BCDS_WlanConnect.h"
 #include "BCDS_NetworkConfig.h"
 #include <Serval_Network.h>
 #include "FreeRTOS.h"
+#include "ubirch-xdk-firmware.h"
 
 void wifiConnectCallback(WlanConnect_Status_T connectEvent)
 {

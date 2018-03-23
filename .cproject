@@ -18,9 +18,9 @@
 					<folderInfo id="cdt.managedbuild.toolchain.gnu.mingw.base.2085283633.823056962" name="/" resourcePath="">
 						<toolChain id="com.bosch.cds.xdk.toolchain.299555137" name="BCDS XDK Toolchain" superClass="com.bosch.cds.xdk.toolchain">
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="com.bosch.cds.xdk.toolchain.targetplatform.1469877962" isAbstract="false" osList="all" superClass="com.bosch.cds.xdk.toolchain.targetplatform"/>
-							<builder buildPath="${workspace_loc:/XdkApplicationTemplate}" id="com.bosch.cds.xdk.toolchain.builder.509924666" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="com.bosch.cds.xdk.toolchain.builder"/>
+							<builder buildPath="${workspace_loc:/ubirch-xdk-firmware}" id="com.bosch.cds.xdk.toolchain.builder.509924666" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="com.bosch.cds.xdk.toolchain.builder"/>
 							<tool id="com.bosch.cds.xdk.toolchain.c.16501066" name="BCDS C Compiler" superClass="com.bosch.cds.xdk.toolchain.c">
-								<option id="gnu.c.compiler.option.include.paths.2110315500" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+								<option id="gnu.c.compiler.option.include.paths.2110315500" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${ARM_GCC}/arm-none-eabi/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ARM_GCC}/lib/gcc/arm-none-eabi/4.7.4/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ARM_GCC}/lib/gcc/arm-none-eabi/4.7.4/include-fixed&quot;"/>
@@ -84,7 +84,7 @@
 									<listOptionValue builtIn="false" value="&quot;${BCDS_BASE_DIR}/xdk110/Platform/FOTA/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${BCDS_BASE_DIR}/xdk110/Libraries/BLEStack/3rd-party/Alpwise/ALPW-BLESDKCM3/BLESW_CoreStack/Interfaces/ATT&quot;"/>
 								</option>
-								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1089913614" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
+								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1089913614" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="EscX509_HASH_SHA1_ENABLED=1"/>
 									<listOptionValue builtIn="false" value="SERVAL_POLICY_STACK_CALLS_TLS_API=1"/>
 									<listOptionValue builtIn="false" value="EscTls_CIPHER_SUITE=TLS_PSK_WITH_AES_128_CCM_8"/>
@@ -169,7 +169,7 @@
 									<listOptionValue builtIn="false" value="SERVAL_ENABLE_DTLS_SERVER=1"/>
 									<listOptionValue builtIn="false" value="BCDS_SERVAL_COMMBUFF_SEND_BUFFER_MAX_LEN=1000"/>
 								</option>
-								<option id="gnu.c.compiler.option.preprocessor.undef.symbol.739291639" superClass="gnu.c.compiler.option.preprocessor.undef.symbol" valueType="undefDefinedSymbols">
+								<option id="gnu.c.compiler.option.preprocessor.undef.symbol.739291639" name="Undefined symbols (-U)" superClass="gnu.c.compiler.option.preprocessor.undef.symbol" valueType="undefDefinedSymbols">
 									<listOptionValue builtIn="false" value="__STDC__"/>
 									<listOptionValue builtIn="false" value="__INT64_MAX__"/>
 									<listOptionValue builtIn="false" value="__LDBL_HAS_QUIET_NAN__"/>
@@ -451,6 +451,7 @@
 	<storageModule moduleId="refreshScope" versionNumber="2">
 		<configuration configurationName="XDK Default">
 			<resource resourceType="PROJECT" workspacePath="/XdkApplicationTemplate"/>
+			<resource resourceType="PROJECT" workspacePath="/ubirch-xdk-firmware"/>
 		</configuration>
 	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
@@ -460,4 +461,5 @@
 		</scannerConfigBuildInfo>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>

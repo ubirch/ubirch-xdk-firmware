@@ -50,6 +50,8 @@
 
 /* module includes ********************************************************** */
 
+#include "ubirch-xdk-firmware.h"
+
 #include "BMA280.h"
 #include "SntpTime.h"
 
@@ -71,7 +73,6 @@
 #include "BCDS_ServalPalWiFi.h"
 #include "FreeRTOS.h"
 #include "timers.h"
-#include "XdkApplicationTemplate.h"
 #include "ubirch_protocol.h"
 
 

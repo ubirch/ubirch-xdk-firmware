@@ -44,7 +44,8 @@
 #include "BCDS_CmdProcessor.h"
 #include "FreeRTOS.h"
 #include "task.h"
-#include "XdkApplicationTemplate.h"
+
+#include "ubirch-xdk-firmware.h"
 
 /* own header files */
 

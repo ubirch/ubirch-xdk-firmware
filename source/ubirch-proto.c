@@ -7,7 +7,6 @@
 
 #include <stdio.h>
 
-#include "XdkApplicationTemplate.h"
 #include "wlan.h"
 
 #include <Serval_HttpClient.h>
@@ -24,6 +23,7 @@
 #include "ubirch-proto.h"
 #include "BMA280.h"
 #include "SntpTime.h"
+#include "ubirch-xdk-firmware.h"
 
 
 #define REQUEST_MAX_DOWNLOAD_SIZE       UINT32_C(512)
