@@ -41,4 +41,4 @@ This creates a distribution directory `BUILD/xdk/ubirch-protocol`, which can be 
   - XDK connects to the WIFI
   - Gets UTC time from ntp server
   - Every 10 seconds the XDK gets the Accelerometer values from the BMA280 sensors, packs it and signs 
-  it using ubrich-protocol and sends it to the backend
+  it using ubirch-protocol and sends it to the backend
